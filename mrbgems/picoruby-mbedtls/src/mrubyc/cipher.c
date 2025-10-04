@@ -20,11 +20,8 @@ c_mbedtls_cipher_new(mrbc_vm *vm, mrbc_value *v, int argc)
   }
   int cipher_type;
   uint8_t key_len, iv_len;
-  printf("Cipher.new: cipher_name='%s'\n", cipher_name);
   Mbedtls_cipher_type_key_iv_len(cipher_name, &cipher_type, &key_len, &iv_len);
-  printf("Cipher.new: cipher_type=%d, key_len=%d, iv_len=%d\n", cipher_type, key_len, iv_len);
   if (cipher_type == 0) {
-    printf("Cipher.new: unsupported cipher suite '%s'\n", cipher_name);
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), "unsupported cipher suite");
     return;
   }
@@ -91,9 +88,7 @@ c_mbedtls_cipher_key_eq(mrbc_vm *vm, mrbc_value *v, int argc)
 
   int ret = MbedTLS_cipher_set_key(cipher_instance, (const uint8_t *)key.string->data, key.string->size * 8);
 
-  if (ret == CIPHER_ALREADY_SET) {
-    printf("[WARN] key should be set once per instance, ignoring\n");
-  } else if (ret == CIPHER_OPERATION_NOT_SET) {
+  if (ret == CIPHER_OPERATION_NOT_SET) {
     mrbc_raise(vm, MRBC_CLASS(RuntimeError), "operation is not set");
   } else if (ret == CIPHER_INVALID_LENGTH) {
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), "key length is invalid");
@@ -130,9 +125,7 @@ c_mbedtls_cipher_iv_eq(mrbc_vm *vm, mrbc_value *v, int argc)
 
   int ret = MbedTLS_cipher_set_iv(cipher_instance, (const uint8_t *)iv.string->data, iv.string->size);
 
-  if (ret == CIPHER_ALREADY_SET) {
-    printf("[WARN] iv should be set once per instance, ignoring\n");
-  } else if (ret == CIPHER_OPERATION_NOT_SET) {
+  if (ret == CIPHER_OPERATION_NOT_SET) {
     mrbc_raise(vm, MRBC_CLASS(RuntimeError), "operation is not set");
   } else if (ret == CIPHER_INVALID_LENGTH) {
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), "iv length is invalid");
