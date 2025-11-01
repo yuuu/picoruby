@@ -1,7 +1,7 @@
 #include "../../include/machine.h"
 #include <stdio.h>
 
-// Format: "1days 02:03:04"
+// Format: "1d 02:03:04.05"
 void
 Machine_uptime_formatted(char *buf, int maxlen)
 {
@@ -10,5 +10,5 @@ Machine_uptime_formatted(char *buf, int maxlen)
   uint32_t min = sec / 60;
   uint32_t hour  = min / 60;
   uint32_t day  = hour / 24;
-  snprintf(buf, maxlen, "%ud%02u:%02u:%02u.%02u", day, hour % 24, min % 60, sec % 60, (unsigned int)(us % 1000000) / 10000);
+  snprintf(buf, maxlen, "%lud %02lu:%02lu:%02lu.%02u", day, hour % 24, min % 60, sec % 60, (unsigned int)(us % 1000000) / 10000);
 }
