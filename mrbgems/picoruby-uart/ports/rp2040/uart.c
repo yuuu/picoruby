@@ -66,11 +66,23 @@ UART_unit_name_to_unit_num(const char *name)
 /*
  * RP2040 GPIO function-select table (valid for RP2350 QFN-60 as well).
  * Each array lists the GPIOs usable as the given UART signal, terminated by -1.
+ *
+ * The RP2350B (QFN-80, NUM_BANK0_GPIOS == 48) repeats the UART function map
+ * into the GPIO32-47 range: GPIO32-35 map like GPIO0-3, GPIO36-39 like
+ * GPIO4-7, GPIO40-43 like GPIO24-27, GPIO44-47 like GPIO28-31. Only the
+ * TX/RX entries are listed here (CTS/RTS pins are set explicitly).
  */
+#if defined(NUM_BANK0_GPIOS) && NUM_BANK0_GPIOS > 30
+static const int8_t uart0_tx_pins[] = {0, 12, 16, 28, 32, 44, -1};
+static const int8_t uart1_tx_pins[] = {4, 8, 20, 24, 36, 40, -1};
+static const int8_t uart0_rx_pins[] = {1, 13, 17, 29, 33, 45, -1};
+static const int8_t uart1_rx_pins[] = {5, 9, 21, 25, 37, 41, -1};
+#else
 static const int8_t uart0_tx_pins[] = {0, 12, 16, 28, -1};
 static const int8_t uart1_tx_pins[] = {4, 8, 20, 24, -1};
 static const int8_t uart0_rx_pins[] = {1, 13, 17, 29, -1};
 static const int8_t uart1_rx_pins[] = {5, 9, 21, 25, -1};
+#endif
 
 /* Return the unit that owns pin for the given signal, or -1 if none. */
 static int

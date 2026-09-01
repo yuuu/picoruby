@@ -1,0 +1,115 @@
+# @sidebar hardware_device
+class SIM7672
+  type log_t = { cmd: String, res: String }
+  type http_response_t = { status: Integer, headers: String, body: String }
+
+  DEFAULT_BAUDRATE: Integer
+  DEFAULT_LOG_SIZE: Integer
+  POWERON_TIMEOUT_MS: Integer
+  POWEROFF_TIMEOUT_MS: Integer
+  POLL_INTERVAL_MS: Integer
+  RESET_PULSE_MS: Integer
+  AUTH_NONE: Integer
+  AUTH_PAP: Integer
+  AUTH_CHAP: Integer
+
+  @uart: UART
+  @baudrate: Integer
+  @debug: bool
+  @log: Array[log_t]
+  @log_size: Integer
+  @power_pin: GPIO?
+  @reset_pin: GPIO?
+  @status_pin: GPIO?
+  @apn: String
+  @username: String
+  @password: String
+  @auth_type: Integer
+  @pdp_type: String
+  @user_agent: String
+
+  attr_accessor apn: String
+  attr_accessor username: String
+  attr_accessor password: String
+  attr_accessor user_agent: String
+  attr_accessor pdp_type: String
+  attr_accessor auth_type: Integer
+  attr_accessor debug: bool
+  attr_reader log: Array[log_t]
+
+  def initialize: (
+    uart: UART,
+    ?power_pin: (GPIO | Integer | nil),
+    ?reset_pin: (GPIO | Integer | nil),
+    ?status_pin: (GPIO | Integer | nil),
+    ?baudrate: Integer,
+    ?log_size: Integer,
+    ?debug: bool
+  ) -> void
+  def debug_print: (String msg) -> void
+  def to_gpio: ((GPIO | Integer | nil) pin, Integer dir) -> GPIO?
+  def on?: () -> bool
+  def power_key: (Integer hold_ms) -> void
+  def poweron: () -> bool
+  def poweroff: () -> bool
+  def reset: () -> bool
+  def uart_read: () -> String
+  def command: (String cmd, String? expected_response, ?String? error_response, ?Integer timeout) -> bool
+  def command!: (String cmd, String? expected_response, ?String? error_response, ?Integer timeout) -> void
+  def last_response: () -> String
+  def at: (String cmd, ?Integer timeout) -> String
+  def sync: (?Integer retries) -> bool
+  def setup_modem: (?flow_control: bool) -> bool
+  def wait_sim_ready: (?Integer retries, ?Integer delay_ms) -> bool
+  def wait_registration: (?Integer retries, ?Integer delay_ms) -> bool
+  def registration_stat: (String res) -> String
+  def signal_quality: () -> Array[Integer]?
+  def configure_pdp_context: () -> bool
+  def check_sim_status: () -> bool
+  def net_open: () -> bool
+  def net_close: () -> bool
+  def configure_and_activate_context: () -> bool
+
+  # @sidebar hardware_device
+  class TCPClient < SIM7672
+    def open: (String host, Integer port, ?type: String, ?link: Integer) -> Integer
+    def send: (String data, ?link: Integer) -> Integer
+    def recv: (?link: Integer, ?length: Integer) -> String
+    def close: (?link: Integer) -> bool
+  end
+
+  # @sidebar hardware_device
+  class UDPClient < SIM7672
+    def send: (String host, Integer port, String data, ?link: Integer) -> Integer
+  end
+
+  # @sidebar hardware_device
+  class SoracomBeamUDP < UDPClient
+    def send: (String data, ?link: Integer) -> Integer
+  end
+
+  # @sidebar hardware_device
+  class HTTPSClient < SIM7672
+    SSL_CTX_ID: Integer
+    HTTP_CID: Integer
+
+    @cacert: String?
+
+    def initialize: (
+      uart: UART,
+      ?cacert: String?,
+      ?power_pin: (GPIO | Integer | nil),
+      ?reset_pin: (GPIO | Integer | nil),
+      ?status_pin: (GPIO | Integer | nil),
+      ?baudrate: Integer,
+      ?log_size: Integer,
+      ?debug: bool
+    ) -> void
+    def upload_file: (String name, String data) -> String
+    def get: (String url, ?Hash[String, String] headers) -> http_response_t
+    def post: (String url, String body, ?Hash[String, String] headers) -> http_response_t
+    def request: (Integer method_code, String url, String? body, Hash[String, String] headers) -> http_response_t
+    def parse_http_action: (Integer method_code) -> Array[Integer]
+    def extract_http_read: (String res) -> String
+  end
+end

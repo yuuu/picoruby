@@ -11,6 +11,12 @@ end
 
 def r2p2_def_board(board)
   case board
+  when 'microcat1'
+    # mechatrax MicroCat.1: RP2350B + SIM7672 modem. The board header lives in
+    # the r2p2 gem (pico-sdk has no microcat1.h); point PICO_BOARD_HEADER_DIRS
+    # at it so generic_board.cmake can find it.
+    "-D PICO_PLATFORM=rp2350 -D PICO_BOARD=microcat1 " \
+      "-D PICO_BOARD_HEADER_DIRS=#{R2P2_GEM_DIR}/cmake/boards"
   when 'pico2_w'
     '-D PICO_PLATFORM=rp2350 -D PICO_BOARD=pico2_w -D USE_WIFI=1'
   when 'pico2'
@@ -108,7 +114,7 @@ namespace :r2p2 do
 
   %w[femtoruby picoruby].each do |vm|
     namespace vm do
-      %w[pico pico_w pico2 pico2_w].each do |board|
+      %w[pico pico_w pico2 pico2_w microcat1].each do |board|
         config_file = "#{MRUBY_ROOT}/build_config/r2p2-#{vm}-#{board}.rb"
         next unless File.exist?(config_file)
 

@@ -1,6 +1,12 @@
-MRuby::CrossBuild.new("r2p2-femtoruby-pico2#{ENV['PICORB_DEBUG'] ? '-debug' : ''}") do |conf|
+MRuby::CrossBuild.new("r2p2-femtoruby-microcat1#{ENV['PICORB_DEBUG'] ? '-debug' : ''}") do |conf|
 
   ###############################################################
+  # mechatrax MicroCat.1 (RP2350B + SIMCom SIM7672JP LTE Cat 1)
+  #
+  # Same as r2p2-femtoruby-pico2.rb except for the build name and the extra
+  # picoruby-sim7672 gem. The RP2350B / GPIO-count difference is handled on
+  # the CMake side by the microcat1 board header, not here.
+  #
   # You need following tools:
   #   arm-none-eabi       | to make libmruby.a
   ###############################################################
@@ -16,9 +22,6 @@ MRuby::CrossBuild.new("r2p2-femtoruby-pico2#{ENV['PICORB_DEBUG'] ? '-debug' : ''
 
   conf.cc.flags.flatten!
   conf.cc.flags << "-mcpu=cortex-m33"
-#  conf.cc.flags << "-march=armv8-m.main+fp+dsp"
-#  conf.cc.flags << "-mabi=aapcs-linux"
-#  conf.cc.flags << "-mfloat-abi=softfp"
   conf.cc.flags << "-mthumb"
 
   conf.cc.flags << "-fno-strict-aliasing"

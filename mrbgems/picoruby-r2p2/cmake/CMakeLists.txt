@@ -87,10 +87,16 @@ else()
   pico_enable_stdio_uart(${PROJECT_NAME} 0)
 endif()
 
+# RP2350-class boards (RP2350A "pico2" family and the RP2350B "microcat1")
+# share the same RAM map and flash layout, so they take the same branch here.
+if(PICO_BOARD STREQUAL "pico2" OR PICO_BOARD STREQUAL "pico2_w" OR PICO_BOARD STREQUAL "microcat1")
+  set(PICORB_IS_RP2350 TRUE)
+endif()
+
 if(PICO_BOARD STREQUAL "pico" OR PICO_BOARD STREQUAL "pico_w")
   add_compile_definitions(PICO_RP2040=1)
   target_compile_definitions(${PROJECT_NAME} PRIVATE FLASH_TARGET_OFFSET=0x00140000)
-elseif(PICO_BOARD STREQUAL "pico2" OR PICO_BOARD STREQUAL "pico2_w")
+elseif(PICORB_IS_RP2350)
   add_compile_definitions(PICO_RP2350=1)
   target_compile_definitions(${PROJECT_NAME} PRIVATE FLASH_TARGET_OFFSET=0x00340000)
 endif()
@@ -144,7 +150,7 @@ endif()
 if(PICO_BOARD STREQUAL "pico" OR PICO_BOARD STREQUAL "pico_w")
   set(PICORB_STACK_SIZE 0x1000) # 4KB
   set(PICORB_CORE1_STACK_SIZE 0x0800) # 2KB (in SCRATCH_X)
-elseif(PICO_BOARD STREQUAL "pico2" OR PICO_BOARD STREQUAL "pico2_w")
+elseif(PICORB_IS_RP2350)
   if(PICORB_DEBUG)
     set(PICORB_STACK_SIZE 0x6000) # 24KB
     set(PICORB_RAM_LENGTH_KB 488)
